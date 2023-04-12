@@ -1,10 +1,9 @@
 from paddleocr import PaddleOCR
 import asyncio
-import threading
 from concurrent.futures import ThreadPoolExecutor
 import time
 from . import utils
-import wx_tool.objectPool as objectPool
+from . import objectPool
 from .  import config
 
 rec_model_dir = ""

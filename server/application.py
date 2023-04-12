@@ -1,7 +1,5 @@
 from flask import Flask, request,g
 from .PaddleOCRUtilService import PaddleOCRUtil,PaddleOCRService
-import json
-import asyncio
 from . import config
 from . import utils
 
