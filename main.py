@@ -3,7 +3,7 @@ import sys
 
 sys.path.append(os.getcwd())
 
-import server.application  as app
+from server.application import app
 
 
 if __name__ == "__main__":
