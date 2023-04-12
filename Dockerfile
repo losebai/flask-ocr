@@ -36,8 +36,8 @@ WORKDIR /app
 
 # 复制应用程序文件和依赖项
 COPY requirements.txt .
-#RUN pip3 install  -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-COPY main.py .
+RUN pip3 install  -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+COPY . .
 
 # 暴露应用程序端口
 EXPOSE 8888
