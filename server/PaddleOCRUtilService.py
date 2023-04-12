@@ -8,8 +8,8 @@ from .  import config
 
 rec_model_dir = ""
 cls_model_dir= ""
-det = "D:\items\paddler-venv\venv\PaddleOCR-module\ch_ppocr_server_v2.0_det_infer"
-rec = "D:\items\paddler-venv\venv\PaddleOCR-module\ch_ppocr_mobile_v2.0_rec_infer"
+det = "..\\ocr_model\\ch_ppocr_server_v2.0_det_infer"
+rec = "..\\ocr_model\\\ch_ppocr_mobile_v2.0_rec_infer"
 
 def create_new_object():
     return PaddleOCR(use_angle_cls=True, lang="ch",page_num=1,det=det,rec=rec,use_tensorrt=True,enable_mkldnn=True)
