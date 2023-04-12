@@ -10,15 +10,15 @@ stages:
 build:
   stage: build
   script:
-    - docker build -t my-python-app:$CI_COMMIT_SHORT_SHA .
-    - docker tag my-python-app:$CI_COMMIT_SHORT_SHA my-docker-registry/my-python-app:$CI_COMMIT_SHORT_SHA
+    - docker build -t wx_tool:$CI_COMMIT_SHORT_SHA .
+    - docker tag wx_tool:$CI_COMMIT_SHORT_SHA my-docker-registry/wx_tool:$CI_COMMIT_SHORT_SHA
     - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD my-docker-registry
-    - docker push my-docker-registry/my-python-app:$CI_COMMIT_SHORT_SHA
+    - docker push my-docker-registry/wx_tool:$CI_COMMIT_SHORT_SHA
 
 deploy:
   stage: deploy
   image: rancher/cli:v2.3.0
   script:
-    - rancher login https://my-rancher-server.com/v3 --token $RANCHER_TOKEN
-    - rancher kubectl create namespace my-python-app
-    - rancher kubectl apply -n my-python-app -f deployment.yaml
+    - rancher login https://docs.rancher.cn --token w54zhz4j6b89bvp6lq5g5tf2rlbqqwccr8np7l4m2qfbg8s5nwvkrw
+    - rancher kubectl create namespace wx_tool
+    - rancher kubectl apply -n wx_tool -f deployment.yaml
