@@ -1,6 +1,6 @@
 import os
 
 
-folder_name = "\\files"
+folder_name = "\\wx_tool\\files"
 config_path = os.getcwd() + folder_name
 

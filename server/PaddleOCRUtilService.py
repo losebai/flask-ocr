@@ -14,7 +14,7 @@ rec = "..\\ocr_model\\\ch_ppocr_mobile_v2.0_rec_infer"
 def create_new_object():
     return PaddleOCR(use_angle_cls=True, lang="ch",page_num=1,det=det,rec=rec,use_tensorrt=True,enable_mkldnn=True)
 
-_objectSize = 10
+_objectSize = 1
 paddleOcrPoll = objectPool.ObjectPool(create_new_object,_objectSize)
 
   
@@ -39,19 +39,14 @@ class PaddleOCRUtil(metaclass=utils.Singleton):
             pass
         return img_path,data
 
-    # 融合了flask的保存,后期可优化
-    def files_yield(self,files):
-        for file in files:
-            filename = config.config_path + "\\" +  file.filename
-            yield filename
-            file.save(filename)
+
 
 
     @utils.calc_self_time
     async def parserImage(self,files) -> dict:
         with ThreadPoolExecutor(max_workers=4) as executor:
             loop = asyncio.get_event_loop()
-            tasks = [loop.run_in_executor(executor, self.image_ocr, file) for file in self.files_yield(files)]
+            tasks = [loop.run_in_executor(executor, self.image_ocr, file) for file in files]
             image_data = await asyncio.gather(*tasks)
         results = {}
         for image in image_data:

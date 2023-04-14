@@ -32,3 +32,9 @@ class Singleton(type):
 
 def split_array(arr, size):
     return [arr[i:i+size] for i in range(0, len(arr), size)]
+
+
+# def split_array(generator, size):
+#     return [arr[i:i+size] for i in generator]
+
+
