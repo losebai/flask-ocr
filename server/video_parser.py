@@ -1,7 +1,21 @@
 import cv2
 import os
 
+import requests
+ 
+hd = {
+    'Connection':'keep-alive',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0'
+}
 
+def Download_video(url):
+    # 视频网址
+    r = requests.get(url, headers=hd, stream=True)
+    file_name = url.split("/")[1]
+    with open(f'{file_name}.mp4', "wb") as mp4:
+        for chunk in r.iter_content(chunk_size=1024 * 1024*5):
+            if chunk:
+                mp4.write(chunk)
 
 def split_video_to_frames(video_path, output_folder=".\\video_image", fps=1):
     
@@ -41,5 +55,6 @@ def split_video_to_frames(video_path, output_folder=".\\video_image", fps=1):
 
     return frame_files
 
+# split_video_to_frames(r"..\files\test.mp4")
 
 
