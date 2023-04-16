@@ -2,6 +2,7 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
 
+ThreadPool = ThreadPoolExecutor()
 class AsyncUtils:
     
     @staticmethod
@@ -16,7 +17,7 @@ class AsyncUtils:
     async def to_thread(func, *args, **kwargs):
         """将一个阻塞型函数转换成协程任务，使用线程池异步执行"""
         loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(ThreadPoolExecutor(), lambda: func(*args, **kwargs))
+        return await loop.run_in_executor(ThreadPool, lambda: func(*args, **kwargs))
 
     @staticmethod
     async def gather_concurrent(coros, limit=10):
