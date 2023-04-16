@@ -4,8 +4,19 @@ import os
 folder_name = "\\wx_tool\\files"
 config_path = os.getcwd() + folder_name
 
-video_folder_name = "\\files"
+video_folder_path = os.getcwd() +  "\\wx_tool\\video"
+imag_folder_path = os.getcwd() + "\\wx_tool\\imags"
 
 objectPoolSize = 1
 
 ThreadSize = 4
+
+
+if not os.path.exists(config_path):
+    os.makedirs(config_path, exist_ok=True)
+if not os.path.exists(video_folder_path):
+    os.makedirs(video_folder_path, exist_ok=True)
+if not os.path.exists(imag_folder_path):
+    os.makedirs(imag_folder_path, exist_ok=True)
+
+

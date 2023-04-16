@@ -6,12 +6,9 @@ import asyncio
 import httpx
 import cv2
 
-config_path = config.config_path + config.video_folder_name
+config_path = config.video_folder_path
+
 loop = asyncio.get_event_loop()
-
-
-if not os.path.exists(config_path):
-    os.makedirs(config_path, exist_ok=True)
 
 
 hd = {
@@ -34,13 +31,11 @@ def Download_video(url):
     return path
 
 
-async def split_video_to_frames(video_path, output_folder="/tmp/videos", fps=1, duration=10):
-    if not os.path.exists(output_folder) and not os.path.isdir(output_folder):
-        os.makedirs(output_folder)
+async def split_video_to_frames(video_path, output_folder = config.imag_folder_path, fps=1, duration=10,frame_size=5):
 
     cap = cv2.VideoCapture(video_path)
     frame_rate = cap.get(cv2.CAP_PROP_FPS)
-    total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+    # total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
     target_frame_count = int(duration * frame_rate)
     frames_per_second = int(frame_rate / fps)
     current_frame_idx = 0
@@ -51,7 +46,7 @@ async def split_video_to_frames(video_path, output_folder="/tmp/videos", fps=1, 
         fileName = uuid.uuid1()
         while frame_count < target_frame_count:
             ret, frame = await asyncio.to_thread(cap.read)
-            if not ret and frame_count == 5:
+            if not ret and frame_count == frame_size :
                 break
 
             if frame_count % frames_per_second == 0:

@@ -46,7 +46,7 @@ class PaddleOCRUtil(metaclass=utils.Singleton):
     @utils.calc_self_time
     async def parserImage(self,files) -> dict:
         with ThreadPoolExecutor(max_workers=4) as executor:
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
             tasks = [loop.run_in_executor(executor, self.image_ocr, file) for file in files]
             image_data = await asyncio.gather(*tasks)
         results = {}
@@ -66,7 +66,7 @@ class PaddleOCRService(metaclass=utils.Singleton):
        
 
     def parserImage_run(self, files) -> dict:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.new_event_loop()
         tasks = [loop.create_task(self.paddleOCRUtil.parserImage(files=i)) for i in utils.split_array(files, 4)]
         wait_coro = asyncio.wait(tasks)
         loop.run_until_complete(wait_coro)

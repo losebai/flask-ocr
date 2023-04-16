@@ -2,15 +2,21 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
 
-ThreadPool = ThreadPoolExecutor()
+ThreadPool = ThreadPoolExecutor(4)
 class AsyncUtils:
+
+
+    @staticmethod
+    def run(func):
+        return asyncio.run(func)
     
     @staticmethod
-    async def run_coroutine(coro):
+    def run_coroutine(coro):
         """运行一个协程并返回结果"""
-        loop = asyncio.get_event_loop()
+        loop = asyncio.new_event_loop()
         task = loop.create_task(coro)
-        await task
+        loop.run_until_complete(asyncio.wait(task))
+        loop.close()
         return task.result()
 
     @staticmethod

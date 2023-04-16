@@ -3,7 +3,7 @@ from .PaddleOCRUtilService import PaddleOCRUtil,PaddleOCRService
 from . import config
 from . import utils
 from . import video_parser
-from  asyncUtils import AsyncUtils
+from  .asyncUtils import AsyncUtils
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
@@ -46,7 +46,7 @@ def parserUrl(*args, **kwargs) -> dict:
     url = request.args.get("url")
     videoPath =  video_parser.async_download_video(url)
     # videoPath = path +  "\\test.mp4"
-    files =  AsyncUtils.run_coroutine(video_parser.split_video_to_frames(videoPath))
+    files =  AsyncUtils.run(video_parser.split_video_to_frames(videoPath))
     data = get_singleton().parserImage_run(files)
     try:
         remove = map(lambda x: os.remove(x), files)
