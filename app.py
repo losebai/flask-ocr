@@ -1,10 +1,11 @@
 import os
 import sys
 
-sys.path.append(os.getcwd())
+from server import video_parser 
 
-from server.application import app
+# from server.application import app
 
 
 if __name__ == "__main__":
-    app.run()
+    # app.run()
+    pass

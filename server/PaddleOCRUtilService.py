@@ -17,7 +17,8 @@ def create_new_object():
 _objectSize = 1
 paddleOcrPoll = objectPool.ObjectPool(create_new_object,_objectSize)
 
-  
+loop = asyncio.get_event_loop()
+
 class PaddleOCRUtil(metaclass=utils.Singleton):
     
     @utils.calc_self_time
@@ -65,8 +66,7 @@ class PaddleOCRService(metaclass=utils.Singleton):
        
 
     def parserImage_run(self, files) -> dict:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        loop = asyncio.get_event_loop()
         tasks = [loop.create_task(self.paddleOCRUtil.parserImage(files=i)) for i in utils.split_array(files, 4)]
         wait_coro = asyncio.wait(tasks)
         loop.run_until_complete(wait_coro)
