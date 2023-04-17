@@ -1,13 +1,13 @@
 
 
 class ObjectPool:
-    def __init__(self, object_factory, max_objects):
+    def __init__(self, object_factory:any, max_objects):
         self.object_factory = object_factory
         self.max_objects = max_objects
         self.available_objects = [self.object_factory() for i in range(max_objects)]
         self.used_objects = []
 
-    def acquire(self):
+    def acquire(self)->any:
         if self.available_objects:
             obj = self.available_objects.pop()
         elif len(self.used_objects) < self.max_objects:

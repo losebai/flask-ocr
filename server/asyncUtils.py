@@ -1,5 +1,6 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+from . import utils
 
 
 ThreadPool = ThreadPoolExecutor(4)
@@ -7,6 +8,7 @@ class AsyncUtils:
 
 
     @staticmethod
+    @utils.calc_time
     def run(func):
         return asyncio.run(func)
     

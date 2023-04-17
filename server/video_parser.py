@@ -5,7 +5,7 @@ import requests
 import asyncio 
 import httpx
 import cv2
-
+from . import utils
 config_path = config.video_folder_path
 
 loop = asyncio.get_event_loop()
@@ -16,6 +16,8 @@ hd = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0'
 }
 
+
+@utils.calc_time
 def Download_video(url):
     # 视频网址
     r = requests.get(url, headers=hd, stream=True)
@@ -30,14 +32,17 @@ def Download_video(url):
         f.write(response.content)
     return path
 
-
-async def split_video_to_frames(video_path, output_folder = config.imag_folder_path, fps=1, duration=10,frame_size=5):
+async def split_video_to_frames(video_path, output_folder = config.imag_folder_path, fps=1, duration=10, frame_size=5):
 
     cap = cv2.VideoCapture(video_path)
+    # 每秒帧率
     frame_rate = cap.get(cv2.CAP_PROP_FPS)
-    # total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+    #总帧率
+    total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+    # 基于持续和秒帧率，目标帧率
     target_frame_count = int(duration * frame_rate)
-    frames_per_second = int(frame_rate / fps)
+    # 每秒提取的
+    frames_per_second =  int(frame_rate / fps)
     current_frame_idx = 0
     frame_count = 0
     frame_files = []
@@ -62,7 +67,6 @@ async def split_video_to_frames(video_path, output_folder = config.imag_folder_p
     return frame_files
 
 
-
 def calc_divisional_range(filesize, chuck=10):
     step = filesize//chuck
     arr = list(range(0, filesize, step))
@@ -84,13 +88,11 @@ async def async_range_download(url, save_name, s_pos, e_pos):
         f.write(res.content)
 
 
-
-
+@utils.calc_time
 def async_download_video(url):
     res = httpx.head(url,verify=False,headers=hd)
     filesize = int(res.headers['Content-Length'])
     divisional_ranges = calc_divisional_range(filesize, 20)
-
     video_name = uuid.uuid1()
     path = config_path + "\\V_" + f"{video_name}.mp4"
     # 先创建空文件

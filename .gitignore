@@ -1,3 +1,11 @@
 __pycache__/
 
 server/__pycache__/
+
+imags/
+
+files/
+
+video/
+
+*/__pycache__/

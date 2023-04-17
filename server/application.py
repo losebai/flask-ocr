@@ -46,8 +46,8 @@ def parserUrl(*args, **kwargs) -> dict:
     url = request.args.get("url")
     videoPath =  video_parser.async_download_video(url)
     # videoPath = path +  "\\test.mp4"
-    files =  AsyncUtils.run(video_parser.split_video_to_frames(videoPath))
-    data = get_singleton().parserImage_run(files)
+    files =  AsyncUtils.run(video_parser.split_video_to_frames(videoPath,duration=30, frame_size=30))
+    data = utils.calc_time(get_singleton().parserImage_run)(files)
     try:
         remove = map(lambda x: os.remove(x), files)
         AsyncUtils.to_thread(remove)

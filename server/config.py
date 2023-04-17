@@ -1,5 +1,8 @@
 import os
+import logging
+from concurrent.futures import ThreadPoolExecutor
 
+ThreadPool = ThreadPoolExecutor(max_workers=4)
 
 folder_name = "\\wx_tool\\files"
 config_path = os.getcwd() + folder_name
@@ -11,6 +14,10 @@ objectPoolSize = 1
 
 ThreadSize = 4
 
+# 设置日志级别为DEBUG
+logging.basicConfig(level=logging.DEBUG)
+
+log = logging
 
 if not os.path.exists(config_path):
     os.makedirs(config_path, exist_ok=True)
@@ -18,5 +25,4 @@ if not os.path.exists(video_folder_path):
     os.makedirs(video_folder_path, exist_ok=True)
 if not os.path.exists(imag_folder_path):
     os.makedirs(imag_folder_path, exist_ok=True)
-
 
