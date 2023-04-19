@@ -17,7 +17,8 @@ ThreadSize = 4
 # 设置日志级别为DEBUG
 logging.basicConfig(level=logging.DEBUG)
 
-log = logging
+logger = logging.getLogger("main")
+logger.setLevel(logging.DEBUG)
 
 if not os.path.exists(config_path):
     os.makedirs(config_path, exist_ok=True)

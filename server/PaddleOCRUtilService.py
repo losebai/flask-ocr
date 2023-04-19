@@ -3,7 +3,7 @@ import asyncio
 import time
 from . import utils
 from . import objectPool
-from .config import ThreadPool,log
+from .config import ThreadPool,logger
 
 rec_model_dir = ""
 cls_model_dir= ""
@@ -22,7 +22,6 @@ class PaddleOCRUtil(metaclass=utils.Singleton):
     
     # @utils.calc_self_time
     async def image_ocr(self,img_path) -> list:
-        log.debug(time.ctime(time.time()),img_path,"开始解析","*"*10)
         data: list = list()
         # lock.acquire()
         ocr = paddleOcrPoll.acquire()
@@ -33,10 +32,8 @@ class PaddleOCRUtil(metaclass=utils.Singleton):
                 for line in res:
                     data.append(line)
         finally:
-            # 释放锁
             # lock.release()
             paddleOcrPoll.release(ocr)
-            pass
         return img_path,data
 
 
@@ -53,7 +50,7 @@ class PaddleOCRUtil(metaclass=utils.Singleton):
                 strs.append(i[1][0])
             results[filename.split("\\")[-1]] = strs
         return results
-
+        
 
 class PaddleOCRService(metaclass=utils.Singleton):
 
@@ -63,7 +60,7 @@ class PaddleOCRService(metaclass=utils.Singleton):
     async def __process_files(self, files):
         result = await self.paddleOCRUtil.parserImage(files=files)
         return result
-       8
+       
     def parserImage_run(self, files) -> dict:
         loop = asyncio.new_event_loop()
         tasks = [loop.create_task(self.__process_files(files=i)) for i in utils.split_array(files, 4)]
