@@ -49,7 +49,7 @@ def parserUrl(*args, **kwargs) -> dict:
     files =  AsyncUtils.run(video_parser.split_video_to_frames(videoPath,duration=30, frame_size=30))
     data = utils.calc_time(get_singleton().parserImage_run)(files)
     try:
-        remove = map(lambda x: os.remove(x), files)
+        remove = list(map(lambda x: os.remove(x), files))
         AsyncUtils.to_thread(remove)
         files = None
     except OSError as e:
@@ -58,5 +58,5 @@ def parserUrl(*args, **kwargs) -> dict:
 
 
 def run():
-    app.run(threaded=True,debug=False,host='192.168.0.248',port=8888)
+    app.run(threaded=True,debug=False,host='0.0.0.0',port=8888)
 

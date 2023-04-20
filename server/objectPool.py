@@ -21,3 +21,6 @@ class ObjectPool:
         if obj in self.used_objects:
             self.used_objects.remove(obj)
             self.available_objects.append(obj)
+
+    def size(self):
+        return len(self.available_objects)

@@ -21,8 +21,10 @@ loop = asyncio.get_event_loop()
 class PaddleOCRUtil(metaclass=utils.Singleton):
     
     # @utils.calc_self_time
-    async def image_ocr(self,img_path) -> list:
+    def image_ocr(self,img_path) -> list:
         data: list = list()
+        logger.debug(f"开始解析{img_path}")
+        logger.debug(f"对象池{paddleOcrPoll.size()}")
         # lock.acquire()
         ocr = paddleOcrPoll.acquire()
         try:
@@ -34,6 +36,7 @@ class PaddleOCRUtil(metaclass=utils.Singleton):
         finally:
             # lock.release()
             paddleOcrPoll.release(ocr)
+            logger.debug(f"解析{img_path}完成")
         return img_path,data
 
 
@@ -45,7 +48,7 @@ class PaddleOCRUtil(metaclass=utils.Singleton):
         results = {}
         for image in image_data:
             strs = []
-            filename, data = await image
+            filename, data = image
             for i in  data:
                 strs.append(i[1][0])
             results[filename.split("\\")[-1]] = strs
@@ -63,7 +66,7 @@ class PaddleOCRService(metaclass=utils.Singleton):
        
     def parserImage_run(self, files) -> dict:
         loop = asyncio.new_event_loop()
-        tasks = [loop.create_task(self.__process_files(files=i)) for i in utils.split_array(files, 4)]
+        tasks = [loop.create_task(self.__process_files(files=i)) for i in utils.split_array(files, 8)]
         wait_coro = asyncio.wait(tasks)
         loop.run_until_complete(wait_coro)
         data = {}

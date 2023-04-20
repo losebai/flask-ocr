@@ -12,7 +12,7 @@ imag_folder_path = os.getcwd() + "\\wx_tool\\imags"
 
 objectPoolSize = 1
 
-ThreadSize = 4
+ThreadSize = 10
 
 # 设置日志级别为DEBUG
 logging.basicConfig(level=logging.DEBUG)

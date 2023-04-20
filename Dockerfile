@@ -27,8 +27,9 @@ ENV PATH="/opt/venv-ocr/bin:$PATH"
 
 RUN pip3 install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 
-run pip3 install "paddleocr>=2.0.1"  -i https://mirror.baidu.com/pypi/simple
-run pip3 install flask 
+RUN pip3 install "paddleocr>=2.0.1"  -i https://mirror.baidu.com/pypi/simple
+RUN pip3 install flask 
+RUN pip3 install gunicorn 
 
 # 设置工作目录
 WORKDIR /app
@@ -43,4 +44,4 @@ COPY . .
 EXPOSE 8888
 
 # 定义应用程序启动命令
-CMD [ "python", "./main.py" ]
+CMD ["gunicorn", "-w", "3", "-b", "0.0.0.0:8888", "app:app"]
