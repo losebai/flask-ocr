@@ -2,17 +2,22 @@ import os
 import logging
 from concurrent.futures import ThreadPoolExecutor
 
-ThreadPool = ThreadPoolExecutor(max_workers=4)
+base_dir = os.getcwd() 
 
-folder_name = "\\wx_tool\\files"
-config_path = os.getcwd() + folder_name
+folder_name = "\\files"
+config_path = base_dir + folder_name
 
-video_folder_path = os.getcwd() +  "\\wx_tool\\video"
-imag_folder_path = os.getcwd() + "\\wx_tool\\imags"
+video_folder_path = base_dir +  "\\video"
+imag_folder_path = base_dir + "\\imags"
 
-objectPoolSize = 1
-
+objectPoolSize = ocrSize = 1
+asrPollSize  = 1
+ttsPollSize = 1
 ThreadSize = 10
+
+
+ThreadPool = ThreadPoolExecutor(max_workers=ThreadSize)
+
 
 # 设置日志级别为DEBUG
 logging.basicConfig(level=logging.DEBUG)
