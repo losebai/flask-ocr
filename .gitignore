@@ -1,6 +1,5 @@
 __pycache__/
 
-
 imags/
 
 files/
@@ -10,3 +9,5 @@ video/
 *.pyc
 
 server/__pycache__/*.pyc
+
+*.log
