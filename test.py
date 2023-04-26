@@ -1,6 +1,7 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import time
+from server.utils import calc_time
 
 def sync_calc_fib(n):
     if n in [1, 2]:
@@ -14,18 +15,23 @@ def calc_fib(n):
     return result
 
 async def request(i):
-    # asyncio.sleep(i)
+    asyncio.sleep(i)
     print(f'第 {i} 项请求')
+    return i
 
 async def main():
     start = time.perf_counter()
     loop = asyncio.get_event_loop()
     with ThreadPoolExecutor(max_workers=4) as executor:
         tasks_list = [
-            loop.run_in_executor(executor, calc_fib, 10),
+            loop.run_in_executor(executor, calc_fib, 20),
+            loop.run_in_executor(executor, calc_fib, 20),
             asyncio.create_task(request(5))
         ]
-        await asyncio.gather(*tasks_list)
+        lis = await asyncio.gather(*tasks_list)
+        for i in lis:
+            print(i)
+
         end = time.perf_counter()
         print(f'总计耗时：{end - start}')
 

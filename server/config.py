@@ -10,11 +10,14 @@ config_path = base_dir + folder_name
 video_folder_path = base_dir +  "\\video"
 imag_folder_path = base_dir + "\\imags"
 
+map3_folder_path = f"{base_dir}/mp3"
+wav_folder_path = f"{base_dir}/wav"
+
+
 objectPoolSize = ocrSize = 1
 asrPollSize  = 1
 ttsPollSize = 1
 ThreadSize = 10
-
 
 ThreadPool = ThreadPoolExecutor(max_workers=ThreadSize)
 
@@ -31,4 +34,9 @@ if not os.path.exists(video_folder_path):
     os.makedirs(video_folder_path, exist_ok=True)
 if not os.path.exists(imag_folder_path):
     os.makedirs(imag_folder_path, exist_ok=True)
+
+if not os.path.exists(map3_folder_path):
+    os.makedirs(map3_folder_path, exist_ok=True)
+if not os.path.exists(wav_folder_path):
+    os.makedirs(wav_folder_path, exist_ok=True)
 

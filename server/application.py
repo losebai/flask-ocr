@@ -26,7 +26,7 @@ if not  os.path.exists(path) and not os.path.isdir(path):
 # PaddleOCRService()
 def get_singleton():
     if not hasattr(g, '_singleton_PaddleOCRService'):
-        g._singleton = PaddleOCRService(PaddleOCRUtil())
+        g._singleton = PaddleOCRService()
     return g._singleton
 
 
@@ -36,24 +36,31 @@ def files_yield(files):
         yield filename
         file.save(filename)
 
-@app.route("/parser",methods=["POST"])
-def parser() -> dict:
-    files = request.files.getlist('file')
-    return get_singleton().parserImage_run(files_yield(files))
-
-@app.route("/parser_url",methods=["GET"])
-def parserUrl(*args, **kwargs) -> dict:
-    url = request.args.get("url")
-    videoPath =  video_parser.async_download_video(url)
-    # videoPath = path +  "\\test.mp4"
-    files =  AsyncUtils.run(video_parser.split_video_to_frames(videoPath,duration=30, frame_size=30))
-    data = utils.calc_time(get_singleton().parserImage_run)(files)
+def del_file(files):
     try:
         remove = list(map(lambda x: os.remove(x), files))
         AsyncUtils.to_thread(remove)
         files = None
     except OSError as e:
         print(f"Error deleting file: {e}")
+
+@utils.calc_time
+@app.route("/parser",methods=["POST"])
+def parser() -> dict:
+    files = request.files.getlist('file')
+    data = utils.calc_time(AsyncUtils.run)(PaddleOCRService().parserImage_run(files_yield(files)))
+    del_file(files)
+    return data
+
+@utils.calc_time
+@app.route("/parser_url",methods=["GET"])
+def parserUrl() -> dict:
+    url = request.args.get("url")
+    videoPath =  video_parser.async_download_video(url)
+    # videoPath = path +  "\\test.mp4"
+    files =  AsyncUtils.run(video_parser.split_video_to_frames(videoPath,duration=30, frame_size=30))
+    data = utils.calc_time(AsyncUtils.run)(PaddleOCRService().parserImage_run(files))
+    del_file(files)
     return data
 
 

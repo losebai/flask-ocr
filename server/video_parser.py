@@ -80,7 +80,7 @@ def calc_divisional_range(filesize, chuck=10):
 
 # 下载方法
 async def async_range_download(url, save_name, s_pos, e_pos):
-    headers = {"Range": f"bytes={s_pos}-{e_pos}"}
+    headers = {"Range": f"bytes={s_pos}-{e_pos}",'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0'}
     client = httpx.AsyncClient()
     res = await client.get(url, headers=headers)
     with open(save_name, "rb+") as f:
@@ -92,7 +92,7 @@ async def async_range_download(url, save_name, s_pos, e_pos):
 def async_download_video(url):
     res = httpx.head(url,verify=False,headers=hd)
     filesize = int(res.headers['Content-Length'])
-    divisional_ranges = calc_divisional_range(filesize, 20)
+    divisional_ranges = calc_divisional_range(filesize, 30)
     video_name = uuid.uuid1()
     path = config_path + "\\V_" + f"{video_name}.mp4"
     # 先创建空文件
@@ -105,4 +105,40 @@ def async_download_video(url):
     loop.run_until_complete(asyncio.wait(tasks))
     return path
 
+
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+
+# 下载方法
+def range_download(url,save_name, s_pos, e_pos):
+    headers = {"Range": f"bytes={s_pos}-{e_pos}"}
+    res = requests.get(url, headers=headers, stream=True,verify=False)
+    with open(save_name, "rb+") as f:
+        f.seek(s_pos)
+        for chunk in res.iter_content(chunk_size=64*1024):
+            if chunk:
+                f.write(chunk)
+
+@utils.calc_time
+def thread_download_video(url):
+    res = requests.head(url,verify=False,headers=hd)
+    filesize = int(res.headers['Content-Length'])
+    divisional_ranges = calc_divisional_range(filesize)
+
+
+    save_name = "多线程流式下载.mp4"
+    # 先创建空文件
+    with open(save_name, "wb") as f:
+        pass
+    with ThreadPoolExecutor() as p:
+        futures = []
+        for s_pos, e_pos in divisional_ranges:
+            print(s_pos, e_pos)
+            futures.append(p.submit(range_download,url, save_name, s_pos, e_pos))
+        # 等待所有任务执行完毕
+        as_completed(futures)
+
 # async_download_video("http://v.ftcdn.net/05/92/31/58/700_F_592315857_VievUFhJXSxENE37GJQjOkirPGE7eFex_ST.mp4")
+
+# async_download_video("https://v99-default.douyinvod.com/02658c04176494b68c50f64fe0af9b2b/644528b3/video/tos/cn/tos-cn-ve-15/oYKCVB8bmlIH8BAwQfFA7TwnADeBEAn7BfpwoH/?a=1128&ch=0&cr=0&dr=0&er=0&cd=0%7C0%7C0%7C0&cv=1&br=1139&bt=1139&cs=0&ds=6&ft=raapL0071gOvGbhBH6xRfUdwU4BO5sKWjjdz7tG&mime_type=video_mp4&qs=0&rc=Nmk0OGhlaWhlNDVlZ2g1O0BpM3J4OmY6Znk4aTMzNGkzM0BjYzM2YGJfX2MxNjFgYTI1YSMtLmstcjQwYzZgLS1kLS9zcw%3D%3D&l=20230423191700C698877CB566231014F1&btag=b8001")
