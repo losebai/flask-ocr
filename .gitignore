@@ -11,3 +11,8 @@ video/
 server/__pycache__/*.pyc
 
 *.log
+
+/mp3
+/wav
+*.wav
+*.mp3

@@ -14,10 +14,10 @@ map3_folder_path = f"{base_dir}/mp3"
 wav_folder_path = f"{base_dir}/wav"
 
 
-objectPoolSize = ocrSize = 1
+objectPoolSize = ocrSize = 0
 asrPollSize  = 1
 ttsPollSize = 1
-ThreadSize = 10
+ThreadSize = 4
 
 ThreadPool = ThreadPoolExecutor(max_workers=ThreadSize)
 
@@ -39,4 +39,7 @@ if not os.path.exists(map3_folder_path):
     os.makedirs(map3_folder_path, exist_ok=True)
 if not os.path.exists(wav_folder_path):
     os.makedirs(wav_folder_path, exist_ok=True)
+
+
+
 

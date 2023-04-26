@@ -11,7 +11,7 @@ det = "..\\ocr_model\\ch_ppocr_server_v2.0_det_infer"
 rec = "..\\ocr_model\\\ch_ppocr_mobile_v2.0_rec_infer"
 
 def create_new_object() ->PaddleOCR:
-    return PaddleOCR(use_angle_cls=True, lang="ch",page_num=1,det=det,rec=rec,use_tensorrt=True,enable_mkldnn=True,show_log=False)
+    return PaddleOCR(use_angle_cls=True, lang="ch",page_num=1,det=det,rec=rec,use_tensorrt=True,enable_mkldnn=True,show_log=True)
 
 paddleOcrPoll = objectPool.ObjectPool(create_new_object,objectPoolSize)
 
