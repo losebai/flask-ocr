@@ -3,11 +3,11 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 
 
-folder_name = "\\files"
+folder_name = "/files"
 config_path = os.getcwd() + folder_name
 
-video_folder_path = os.getcwd() +  "\\video"
-imag_folder_path = os.getcwd() + "\\imags"
+video_folder_path = os.getcwd() +  "/video"
+imag_folder_path = os.getcwd() + "/imags"
 
 objectPoolSize = 10
 

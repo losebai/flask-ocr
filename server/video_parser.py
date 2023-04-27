@@ -22,7 +22,7 @@ def Download_video(url):
     # 视频网址
     r = requests.get(url, headers=hd, stream=True)
     file_name = url.split("/")[1]
-    path = config_path + "\\V_" + f'{file_name}.mp4'
+    path = config_path + "/V_" + f'{file_name}.mp4'
     # with open(path, "wb") as mp4:
     #     for chunk in r.iter_content(chunk_size=1024 * 1024*5):
     #         if chunk:
@@ -94,7 +94,7 @@ def async_download_video(url):
     filesize = int(res.headers['Content-Length'])
     divisional_ranges = calc_divisional_range(filesize, 30)
     video_name = uuid.uuid1()
-    path = config_path + "\\V_" + f"{video_name}.mp4"
+    path = config_path + "/V_" + f"{video_name}.mp4"
     # 先创建空文件
     with open(path, "wb") as f:
         f.close()
