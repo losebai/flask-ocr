@@ -22,7 +22,7 @@ def Download_video(url):
     # 视频网址
     r = requests.get(url, headers=hd, stream=True)
     file_name = url.split("/")[1]
-    path = config_path + "\\V_" + f'{file_name}.mp4'
+    path = config_path + "/V_" + f'{file_name}.mp4'
     # with open(path, "wb") as mp4:
     #     for chunk in r.iter_content(chunk_size=1024 * 1024*5):
     #         if chunk:
@@ -89,12 +89,12 @@ async def async_range_download(url, save_name, s_pos, e_pos):
 
 
 @utils.calc_time
-def async_download_video(url):
+def async_download_video(url,suf="mp4"):
     res = httpx.head(url,verify=False,headers=hd)
     filesize = int(res.headers['Content-Length'])
     divisional_ranges = calc_divisional_range(filesize, 30)
     video_name = uuid.uuid1()
-    path = config_path + "\\V_" + f"{video_name}.mp4"
+    path = config_path + "/V_" + f"{video_name}.{suf}"
     # 先创建空文件
     with open(path, "wb") as f:
         f.close()
@@ -139,6 +139,6 @@ def thread_download_video(url):
         # 等待所有任务执行完毕
         as_completed(futures)
 
-# async_download_video("http://v.ftcdn.net/05/92/31/58/700_F_592315857_VievUFhJXSxENE37GJQjOkirPGE7eFex_ST.mp4")
+# async_download_video("https://v95-hn.douyinvod.com/63f309de98a769423777f0c7b3875546/644a56fa/video/tos/cn/tos-cn-ve-15c001-alinc2/oENkPBnvgABDOjiUbAAgRjT8W9fReEREBts9Nq/")
 
 # async_download_video("https://v99-default.douyinvod.com/02658c04176494b68c50f64fe0af9b2b/644528b3/video/tos/cn/tos-cn-ve-15/oYKCVB8bmlIH8BAwQfFA7TwnADeBEAn7BfpwoH/?a=1128&ch=0&cr=0&dr=0&er=0&cd=0%7C0%7C0%7C0&cv=1&br=1139&bt=1139&cs=0&ds=6&ft=raapL0071gOvGbhBH6xRfUdwU4BO5sKWjjdz7tG&mime_type=video_mp4&qs=0&rc=Nmk0OGhlaWhlNDVlZ2g1O0BpM3J4OmY6Znk4aTMzNGkzM0BjYzM2YGJfX2MxNjFgYTI1YSMtLmstcjQwYzZgLS1kLS9zcw%3D%3D&l=20230423191700C698877CB566231014F1&btag=b8001")

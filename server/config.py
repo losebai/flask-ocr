@@ -4,11 +4,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 base_dir = os.getcwd() 
 
-folder_name = "\\files"
+folder_name = "/files"
 config_path = base_dir + folder_name
 
-video_folder_path = base_dir +  "\\video"
-imag_folder_path = base_dir + "\\imags"
+video_folder_path = base_dir +  "/video"
+imag_folder_path = base_dir + "/imags"
 
 map3_folder_path = f"{base_dir}/mp3"
 wav_folder_path = f"{base_dir}/wav"

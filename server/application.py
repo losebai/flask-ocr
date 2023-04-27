@@ -1,14 +1,15 @@
 from flask import Flask, request,g,jsonify
-from flask_sockets import Sockets
 from .PaddleOCRUtilService import  PaddleOCRService
 from .ASRUtilsService import ASRService
 from . import config
 from . import utils
 from . import video_parser
+from .ffmpUtils import compress_image
 from .asyncUtils import AsyncUtils
 from .result import Result
-
-# from paddlespeech.server.bin.paddlespeech_server import ServerExecutor
+from flask_sockets import Sockets
+from  geventwebsocket.handler import WebSocketHandler
+from  gevent.pywsgi import WSGIServer
 from paddlespeech.server.engine.engine_pool import get_engine_pool
 
 
@@ -17,12 +18,13 @@ import json
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 app = Flask(__name__)
-sockets = Sockets(app)
+sockets=Sockets(app)
 
 path = config.config_path
+
 logger = config.logger
 # server_executor = ServerExecutor()
-
+user_socket_dict={}
 
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 设置上传文件的最大大小为 16MB
 app.config['UPLOAD_FOLDER'] = path  # 设置上传文件的保存路径
@@ -50,16 +52,28 @@ def del_file(files):
     try:
         remove = list(map(lambda x: os.remove(x), files))
         AsyncUtils.to_thread(remove)
-        files = None
+        del files
+        del remove
     except OSError as e:
         print(f"Error deleting file: {e}")
 
 @utils.calc_time
 @app.route("/parser",methods=["POST"])
 def parser() -> dict:
-    files = request.files.getlist('file')
-    data = utils.calc_time(AsyncUtils.run)(PaddleOCRService().parserImage_run(files_yield(files)))
-    del_file(files)
+    data = request.args
+    filePaths = []
+    temps = []
+    if data.get("type") == '1':
+        url = request.args.get("url")
+        suf = url.split(".")[-1]
+        file_path = video_parser.async_download_video(url,suf=suf)
+        temps.append(file_path)
+        filePaths.append(compress_image(file_path))
+    elif data.get("type") == '2':
+        files = request.files.getlist('file')
+        filePaths = files_yield(files)
+    data = utils.calc_time(AsyncUtils.run)(PaddleOCRService().parserImage_run(filePaths))
+    del_file(filePaths + temps)
     return data
 
 @utils.calc_time
@@ -72,9 +86,6 @@ def parserUrl() -> dict:
     data = utils.calc_time(AsyncUtils.run)(PaddleOCRService().parserImage_run(files))
     del_file(files)
     return data
-
-
-
  
 # 语音转文字
 @utils.calc_time
@@ -109,14 +120,18 @@ def text_to_speech():
 
 
 
-@sockets.route('/paddlespeech/asr/streaming')
-def websocket_endpoint(websocket):
+@sockets.route('/paddlespeech/asr/streaming/<username>')
+def websocket_endpoint(self,username):
     """PaddleSpeech Online ASR Server api
 
     Args:
         websocket (WebSocket): the websocket instance
-    """
+    """ 
+    user_socket=request.environ.get("wsgi.websocket")
+    if not user_socket:
+        return "请以WEBSOCKET方式连接"
 
+    user_socket_dict[username]=user_socket
     #1. the interface wait to accept the websocket protocal header
     #   and only we receive the header, it establish the connection with specific thread
     # await websocket.accept()
@@ -133,98 +148,96 @@ def websocket_endpoint(websocket):
     try:
         #4. we do a loop to process the audio package by package according the protocal
         #   and only if the client send finished signal, we will break the loop
-        while not websocket.closed:
+        while True:
             # careful here, changed the source code from starlette.websockets
             # 4.1 we wait for the client signal for the specific action
-            message =  websocket.receive()
-            websocket._raise_on_disconnect(message)
+            message =  user_socket.receive()
+            for user_name,u_socket in user_socket_dict.items():
+                # websocket._raise_on_disconnect(message)
 
-            #4.2 text for the action command and bytes for pcm data
-            if "text" in message:
-                # we first parse the specific command
-                message = json.loads(message["text"])
-                if 'signal' not in message:
-                    resp = {"status": "ok", "message": "no valid json data"}
-                    websocket.send_json(resp)
+                #4.2 text for the action command and bytes for pcm data
+                if "text" in message:
+                    # we first parse the specific command
+                    message = json.loads(message["text"])
+                    if 'signal' not in message:
+                        resp = {"status": "ok", "message": "no valid json data"}
+                        u_socket.send(resp)
 
-                # start command, we create the PaddleASRConnectionHanddler instance to process the audio data
-                # end command, we process the all the last audio pcm and return the final result
-                #              and we break the loop
-                if message['signal'] == 'start':
-                    resp = {"status": "ok", "signal": "server_ready"}
-                    # do something at begining here
-                    # create the instance to process the audio
-                    #connection_handler = PaddleASRConnectionHanddler(asr_model)
-                    connection_handler = asr_model.new_handler()
-                    websocket.send_json(resp)
-                elif message['signal'] == 'end':
-                    # reset single  engine for an new connection
-                    # and we will destroy the connection
-                    connection_handler.decode(is_finished=True)
-                    connection_handler.rescoring()
-                    asr_results = connection_handler.get_result()
-                    word_time_stamp = connection_handler.get_word_time_stamp()
-                    connection_handler.reset()
+                    # start command, we create the PaddleASRConnectionHanddler instance to process the audio data
+                    # end command, we process the all the last audio pcm and return the final result
+                    #              and we break the loop
+                    if message['signal'] == 'start':
+                        resp = {"status": "ok", "signal": "server_ready"}
+                        # do something at begining here
+                        # create the instance to process the audio
+                        #connection_handler = PaddleASRConnectionHanddler(asr_model)
+                        connection_handler = asr_model.new_handler()
+                        u_socket.send(resp)
+                    elif message['signal'] == 'end':
+                        # reset single  engine for an new connection
+                        # and we will destroy the connection
+                        connection_handler.decode(is_finished=True)
+                        connection_handler.rescoring()
+                        asr_results = connection_handler.get_result()
+                        word_time_stamp = connection_handler.get_word_time_stamp()
+                        connection_handler.reset()
 
-                    resp = {
-                        "status": "ok",
-                        "signal": "finished",
-                        'result': asr_results,
-                        'times': word_time_stamp
-                    }
-                    websocket.send_json(resp)
-                    break
-                else:
-                    resp = {"status": "ok", "message": "no valid json data"}
-                    websocket.send_json(resp)
-
-            elif "bytes" in message:
-                # bytes for the pcm data
-                message = message["bytes"]
-
-                # we extract the remained audio pcm 
-                # and decode for the result in this package data
-                connection_handler.extract_feat(message)
-                connection_handler.decode(is_finished=False)
-
-                if connection_handler.endpoint_state:
-                    logger.info("endpoint: detected and rescoring.")
-                    connection_handler.rescoring()
-                    word_time_stamp = connection_handler.get_word_time_stamp()
-
-                asr_results = connection_handler.get_result()
-
-                if connection_handler.endpoint_state:
-                    if connection_handler.continuous_decoding:
-                        logger.info("endpoint: continue decoding")
-                        connection_handler.reset_continuous_decoding()
-                    else:
-                        logger.info("endpoint: exit decoding")
-                        # ending by endpoint
                         resp = {
                             "status": "ok",
                             "signal": "finished",
                             'result': asr_results,
                             'times': word_time_stamp
                         }
-                        websocket.send_json(resp)
+                        u_socket.send(resp)
                         break
+                    else:
+                        resp = {"status": "ok", "message": "no valid json data"}
+                        u_socket.send(resp)
 
-                # return the current partial result
-                # if the engine create the vad instance, this connection will have many partial results 
-                resp = {'result': asr_results}
-                websocket.send_json(resp)
+                elif "bytes" in message:
+                    # bytes for the pcm data
+                    message = message["bytes"]
+
+                    # we extract the remained audio pcm 
+                    # and decode for the result in this package data
+                    connection_handler.extract_feat(message)
+                    connection_handler.decode(is_finished=False)
+
+                    if connection_handler.endpoint_state:
+                        logger.info("endpoint: detected and rescoring.")
+                        connection_handler.rescoring()
+                        word_time_stamp = connection_handler.get_word_time_stamp()
+
+                    asr_results = connection_handler.get_result()
+
+                    if connection_handler.endpoint_state:
+                        if connection_handler.continuous_decoding:
+                            logger.info("endpoint: continue decoding")
+                            connection_handler.reset_continuous_decoding()
+                        else:
+                            logger.info("endpoint: exit decoding")
+                            # ending by endpoint
+                            resp = {
+                                "status": "ok",
+                                "signal": "finished",
+                                'result': asr_results,
+                                'times': word_time_stamp
+                            }
+                            u_socket.send(resp)
+                            break
+
+                    # return the current partial result
+                    # if the engine create the vad instance, this connection will have many partial results 
+                    resp = {'result': asr_results}
+                    u_socket.send(resp)
 
     except Exception as e:
         logger.error(e)
+        user_socket_dict.pop(username)
 
 
 
 def run():
     # app.run(threaded=True,debug=False,host='0.0.0.0',port=8888)
-    
-    from gevent import pywsgi
-    from geventwebsocket.handler import WebSocketHandler
-    server = pywsgi.WSGIServer(('0.0.0.0', 5000), app, handler_class=WebSocketHandler)
-    print('server start')
-    server.serve_forever()
+    http_serve=WSGIServer(("0.0.0.0",5000),app,handler_class=WebSocketHandler)
+    http_serve.serve_forever()

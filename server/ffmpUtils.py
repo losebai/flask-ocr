@@ -52,3 +52,21 @@ def trans_to_wav(mp3_file, wav_folder):
     mpy_obj.run()
     return wav_file_path
 
+
+def compress_image(image_path:str)->str:
+    paths =  image_path.split(".")
+    out_path = paths[-2]+"_temp." + paths[-1]
+    cmder = '-vf scale=iw:ih -codec libwebp -lossless 0 -quality 75'
+    # 创建转换器对象
+    mpy_obj = mpy(
+        inputs={
+            image_path: None
+        },
+        outputs={
+            out_path: cmder
+        }
+    )
+    mpy_obj.run()
+    return out_path
+
+# compress_image("../test.png","../test2.png")
