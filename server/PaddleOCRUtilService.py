@@ -3,7 +3,7 @@ import asyncio
 import time
 from . import utils
 from . import objectPool
-from .config import ThreadPool,log
+from .config import ThreadPool,log,objectPoolSize
 
 rec_model_dir = ""
 cls_model_dir= ""
@@ -13,8 +13,7 @@ rec = "..\\ocr_model\\\ch_ppocr_mobile_v2.0_rec_infer"
 def create_new_object() ->PaddleOCR:
     return PaddleOCR(use_angle_cls=True, lang="ch",page_num=1,det=det,rec=rec,use_tensorrt=True,enable_mkldnn=True)
 
-_objectSize = 4
-paddleOcrPoll = objectPool.ObjectPool(create_new_object,_objectSize)
+paddleOcrPoll = objectPool.ObjectPool(create_new_object,objectPoolSize)
 
 loop = asyncio.get_event_loop()
 
@@ -32,6 +31,8 @@ class PaddleOCRUtil(metaclass=utils.Singleton):
                 res = result[idx]
                 for line in res:
                     data.append(line)
+        except Exception as e:
+            log.error(e)
         finally:
             # 释放锁
             # lock.release()
@@ -63,7 +64,7 @@ class PaddleOCRService(metaclass=utils.Singleton):
     async def __process_files(self, files):
         result = await self.paddleOCRUtil.parserImage(files=files)
         return result
-       8
+       
     def parserImage_run(self, files) -> dict:
         loop = asyncio.new_event_loop()
         tasks = [loop.create_task(self.__process_files(files=i)) for i in utils.split_array(files, 4)]
