@@ -1,11 +1,18 @@
 __pycache__/
 
-server/__pycache__/
-
 imags/
 
 files/
 
 video/
 
-*/__pycache__/
+*.pyc
+
+server/__pycache__/*.pyc
+
+*.log
+
+/mp3
+/wav
+*.wav
+*.mp3

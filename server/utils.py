@@ -1,14 +1,17 @@
 import time
 import logging
 
+
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 def calc_self_time(func):
     def wrapper(self, *args, **kwargs):
         start_time = time.time()
         result = func(self, *args, **kwargs)
         end_time = time.time()
-        logging.debug(f"Method {func.__name__} took {(end_time - start_time):.4f} seconds to execute.")
+        logger.debug(f"Method {func.__name__} took {(end_time - start_time):.4f} seconds to execute.")
         return result
     return wrapper
 
@@ -18,7 +21,7 @@ def calc_time(func):
         start_time = time.time()
         result = func(*args, **kwargs)
         end_time = time.time()
-        logging.debug(f"[{current_time}] Function {func.__name__} took {(end_time - start_time):.4f} seconds to execute.")
+        logger.debug(f"[{current_time}] Function {func.__name__} took {(end_time - start_time):.4f} seconds to execute.")
         return result
     return wrapper
 
@@ -28,7 +31,7 @@ def calc_self_async_time(func):
         start_time = time.monotonic()
         result =  func(self,*args, **kwargs)
         end_time = time.monotonic()
-        logging.debug(f"Coroutine {func.__name__} took {(end_time - start_time):.6f} seconds to complete.")
+        logger.debug(f"Coroutine {func.__name__} took {(end_time - start_time):.6f} seconds to complete.")
         return result
     return wrapper
 
@@ -37,7 +40,7 @@ def calc_async_time(func):
         start_time = time.monotonic()
         result =  func(*args, **kwargs)
         end_time = time.monotonic()
-        logging.debug(f"Coroutine {func.__name__} took {(end_time - start_time):.6f} seconds to complete.")
+        logger.debug(f"Coroutine {func.__name__} took {(end_time - start_time):.6f} seconds to complete.")
         return result
     return wrapper
 
