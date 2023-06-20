@@ -32,7 +32,7 @@ def Download_video(url):
         f.write(response.content)
     return path
 
-async def split_video_to_frames(video_path, output_folder = config.imag_folder_path, fps=1, duration=10, frame_size=5):
+async def split_video_to_frames(video_path, output_folder = config.imag_folder_path, fps=1, duration=10, frame_size=-1):
 
     cap = cv2.VideoCapture(video_path)
     # 每秒帧率
@@ -41,8 +41,6 @@ async def split_video_to_frames(video_path, output_folder = config.imag_folder_p
     total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
     # 基于持续和秒帧率，目标帧率
     target_frame_count = int(duration * frame_rate)
-    # 每秒提取的
-    frames_per_second =  int(frame_rate / fps)
     current_frame_idx = 0
     frame_count = 0
     frame_files = []
@@ -51,10 +49,10 @@ async def split_video_to_frames(video_path, output_folder = config.imag_folder_p
         fileName = uuid.uuid1()
         while frame_count < target_frame_count:
             ret, frame = await asyncio.to_thread(cap.read)
-            if not ret and frame_count == frame_size :
+            if not ret and frame_count == frame_size and frame_size != -1:
                 break
 
-            if frame_count % frames_per_second == 0:
+            if total_frames % frame_rate == 0:
                 output_file = os.path.join(output_folder, f"{fileName}_{current_frame_idx}.jpg")
                 await asyncio.to_thread(cv2.imwrite, output_file, frame)
                 frame_files.append(output_file)
