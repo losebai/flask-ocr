@@ -7,14 +7,14 @@ base_dir = os.getcwd()
 folder_name = "/files"
 config_path = base_dir + folder_name
 
-video_folder_path = base_dir +  "/video"
-imag_folder_path = base_dir + "/imags"
+video_folder_path = config_path +  "/video"
+imag_folder_path = config_path + "/imags"
 
-map3_folder_path = f"{base_dir}/mp3"
-wav_folder_path = f"{base_dir}/wav"
+map3_folder_path = f"{config_path}/mp3"
+wav_folder_path = f"{config_path}/wav"
 
 
-objectPoolSize = ocrSize = 0
+objectPoolSize = ocrSize = 1
 asrPollSize  = 1
 ttsPollSize = 1
 ThreadSize = 4

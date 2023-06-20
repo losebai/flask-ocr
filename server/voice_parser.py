@@ -32,4 +32,4 @@ def compress_image(outfile, mb=5, quality=85, k=1): # 通常你只需要修改mb
         o_size = os.path.getsize(outfile) // 1024
     return outfile
 
-compress_image("../tes1.png")
+# compress_image("../tes1.png")

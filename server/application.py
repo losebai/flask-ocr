@@ -7,25 +7,23 @@ from . import video_parser
 from .ffmpUtils import compress_image
 from .asyncUtils import AsyncUtils
 from .result import Result
-from flask_sockets import Sockets
-from  geventwebsocket.handler import WebSocketHandler
-from  gevent.pywsgi import WSGIServer
+# from  geventwebsocket.handler import WebSocketHandler
+# from gevent.pywsgi import WSGIServer
 from paddlespeech.server.engine.engine_pool import get_engine_pool
-
+from flask_cors import CORS
 
 import os
 import json
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
+
 app = Flask(__name__)
-sockets=Sockets(app)
+CORS(app, supports_credentials=True)
 
 path = config.config_path
-
 logger = config.logger
 # server_executor = ServerExecutor()
 user_socket_dict={}
-
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 设置上传文件的最大大小为 16MB
 app.config['UPLOAD_FOLDER'] = path  # 设置上传文件的保存路径
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}  # 设置允许上传的文件扩展名
@@ -56,6 +54,13 @@ def del_file(files):
         del remove
     except OSError as e:
         print(f"Error deleting file: {e}")
+        
+
+@utils.calc_time
+@app.route("/test",methods=["GET"])
+def test() -> dict:
+    print("测试成功")
+    return jsonify(Result.ok(request.args))
 
 @utils.calc_time
 @app.route("/parser",methods=["POST"])
@@ -120,7 +125,7 @@ def text_to_speech():
 
 
 
-@sockets.route('/paddlespeech/asr/streaming/<username>')
+# @sockets.route('/paddlespeech/asr/streaming/<username>')
 def websocket_endpoint(self,username):
     """PaddleSpeech Online ASR Server api
 
@@ -238,6 +243,6 @@ def websocket_endpoint(self,username):
 
 
 def run():
-    # app.run(threaded=True,debug=False,host='0.0.0.0',port=8888)
-    http_serve=WSGIServer(("0.0.0.0",5000),app,handler_class=WebSocketHandler)
-    http_serve.serve_forever()
+    app.run(threaded=True,debug=False,host='0.0.0.0',port=8888)
+    # http_serve=WSGIServer(("0.0.0.0",5000),app)
+    # http_serve.serve_forever()

@@ -1,14 +1,15 @@
 __pycache__/
 
 imags/
-
+/exp/
+*_venv/
 files/
 
 video/
 
 *.pyc
 
-server/__pycache__/*.pyc
+server/__pycache__/*
 
 *.log
 

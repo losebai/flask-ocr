@@ -41,7 +41,6 @@ class PaddleOCRUtil(metaclass=utils.Singleton):
 
     # @utils.calc_self_time
     async def parserImage(self,files) -> dict:
-        print("parserImage:"+ time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         loop = asyncio.get_running_loop()
         tasks = [loop.run_in_executor(ThreadPool, self.image_ocr, file) for file in files]
         return tasks
