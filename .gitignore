@@ -3,9 +3,9 @@ __pycache__/
 imags/
 
 files/
-
+/exp/
 video/
-
+/wav/
 *.pyc
 
 server/__pycache__/*.pyc

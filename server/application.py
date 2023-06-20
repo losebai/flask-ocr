@@ -238,6 +238,6 @@ def websocket_endpoint(self,username):
 
 
 def run():
-    # app.run(threaded=True,debug=False,host='0.0.0.0',port=8888)
-    http_serve=WSGIServer(("0.0.0.0",5000),app,handler_class=WebSocketHandler)
-    http_serve.serve_forever()
+    app.run(threaded=True,debug=False,host='0.0.0.0',port=5000)
+    # http_serve=WSGIServer(("0.0.0.0",5000),app,handler_class=WebSocketHandler)
+    # http_serve.serve_forever()
