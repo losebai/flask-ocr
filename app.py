@@ -1,6 +1,5 @@
-from server.application import app
+from server.application import run
 
 
 if __name__ == "__main__":
-    "cmd uvicorn app:app"
-    app.run()
+    run()

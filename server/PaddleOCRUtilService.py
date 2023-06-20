@@ -11,7 +11,7 @@ det = "..\\ocr_model\\ch_ppocr_server_v2.0_det_infer"
 rec = "..\\ocr_model\\\ch_ppocr_mobile_v2.0_rec_infer"
 
 def create_new_object() ->PaddleOCR:
-    return PaddleOCR(use_angle_cls=True, lang="ch",page_num=1,det=det,rec=rec,use_tensorrt=True,enable_mkldnn=True,show_log=True)
+    return PaddleOCR(use_angle_cls=True,lang="ch",page_num=1,det=det,rec=rec,use_tensorrt=True,enable_mkldnn=True,show_log=True)
 
 paddleOcrPoll = objectPool.ObjectPool(create_new_object,objectPoolSize)
 
@@ -21,6 +21,7 @@ class PaddleOCRUtil(metaclass=utils.Singleton):
     
     # @utils.calc_self_time
     def image_ocr(self,img_path) -> list:
+
         data: list = list()
         logger.debug(f"开始解析{img_path}")
         logger.debug(f"对象池{paddleOcrPoll.size()}")

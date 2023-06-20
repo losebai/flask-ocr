@@ -25,9 +25,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN python3.9 -m venv /opt/venv-ocr
 ENV PATH="/opt/venv-ocr/bin:$PATH"
 
-RUN pip3 install paddlepaddle -i https://mirror.baidu.com/pypi/simple
-
-RUN pip3 install "paddleocr>=2.0.1"  -i https://mirror.baidu.com/pypi/simple
+RUN pip3 install paddlepaddle     -i https://mirror.baidu.com/pypi/simple
+RUN pip3 install paddlespeech     -i https://mirror.baidu.com/pypi/simple
+RUN pip3 install paddleocr>=2.0.1 -i https://mirror.baidu.com/pypi/simple
 RUN pip3 install flask 
 RUN pip3 install gunicorn 
 

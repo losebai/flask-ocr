@@ -1,19 +1,20 @@
-from flask import Flask, request,g,jsonify
-from .PaddleOCRUtilService import  PaddleOCRService
-from .ASRUtilsService import ASRService
-from . import config
-from . import utils
-from . import video_parser
-from .ffmpUtils import compress_image
-from .asyncUtils import AsyncUtils
-from .result import Result
-# from  geventwebsocket.handler import WebSocketHandler
-# from gevent.pywsgi import WSGIServer
+from flask                                  import Flask, request,g,jsonify
+from .PaddleOCRUtilService                  import PaddleOCRService
+from .ASRUtilsService                       import ASRService
+from .                                      import config
+from .                                      import utils
+from .                                      import video_parser
+from .ffmpUtils                             import compress_image
+from .asyncUtils                            import AsyncUtils
+from .result                                import Result
+from flask_sockets                          import Sockets
+from geventwebsocket.handler                import WebSocketHandler
+from gevent.pywsgi                          import WSGIServer
 from paddlespeech.server.engine.engine_pool import get_engine_pool
-from flask_cors import CORS
 
 import os
 import json
+
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 
@@ -76,7 +77,7 @@ def parser() -> dict:
         filePaths.append(compress_image(file_path))
     elif data.get("type") == '2':
         files = request.files.getlist('file')
-        filePaths = files_yield(files)
+        filePaths = list(files_yield(files))
     data = utils.calc_time(AsyncUtils.run)(PaddleOCRService().parserImage_run(filePaths))
     del_file(filePaths + temps)
     return data
@@ -87,7 +88,7 @@ def parserUrl() -> dict:
     url = request.args.get("url")
     videoPath =  video_parser.async_download_video(url)
     # videoPath = path +  "\\test.mp4"
-    files = AsyncUtils.run(video_parser.split_video_to_frames(videoPath,duration=30, frame_size=30))
+    files = AsyncUtils.run(video_parser.split_video_to_frames(videoPath))
     data = utils.calc_time(AsyncUtils.run)(PaddleOCRService().parserImage_run(files))
     del_file(files)
     return data
@@ -124,7 +125,7 @@ def text_to_speech():
 
 
 
-
+# todo 暂时不可用
 # @sockets.route('/paddlespeech/asr/streaming/<username>')
 def websocket_endpoint(self,username):
     """PaddleSpeech Online ASR Server api
@@ -243,6 +244,6 @@ def websocket_endpoint(self,username):
 
 
 def run():
-    app.run(threaded=True,debug=False,host='0.0.0.0',port=8888)
-    # http_serve=WSGIServer(("0.0.0.0",5000),app)
+    app.run(threaded=True,debug=False,host='0.0.0.0',port=5000)
+    # http_serve=WSGIServer(("0.0.0.0",5000),app,handler_class=WebSocketHandler)
     # http_serve.serve_forever()

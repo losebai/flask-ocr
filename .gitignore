@@ -4,9 +4,9 @@ imags/
 /exp/
 *_venv/
 files/
-
+/exp/
 video/
-
+/wav/
 *.pyc
 
 */__pycache__/
